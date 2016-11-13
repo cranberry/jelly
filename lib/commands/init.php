@@ -125,7 +125,15 @@ $command = new Command\Command( 'init', 'Reconfigure the template app', function
 		$commandFile->delete();
 	}
 
-	/* Stage all files */
+	/*
+	 * Update README
+	 */
+	$readmeFile = $this->app->applicationDirectory->child( 'README.md' );
+	$readmeFile->putContents( "# {$appName}" . PHP_EOL );
+
+	/*
+	 * Stage all files
+	 */
 	$commandGitStageAll = 'git add .';
 	Shell::exec( $commandGitStageAll );
 });
