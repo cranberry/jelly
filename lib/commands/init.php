@@ -31,6 +31,16 @@ $command = new Command\Command( 'init', 'Reconfigure the template app', function
 	/* Application name */
 	$appName = Input::prompt( "Application name:", true );
 
+	/* Application version */
+	$appVersionDefault = '0.1.0';
+	$defaultString->setString( $appVersionDefault );
+
+	$appVersion = Input::prompt( "Application version: [{$defaultString}]", false );
+	if( empty( $appVersion ) )
+	{
+		$appVersion = $appVersionDefault;
+	}
+
 	/* Namespace */
 	$namespaceDefault = ucfirst( strtolower( $appName ) );
 	$defaultString->setString( $namespaceDefault );
@@ -98,6 +108,7 @@ $command = new Command\Command( 'init', 'Reconfigure the template app', function
 	/*
 	 * Update config
 	 */
+	$configData['version'] = $url;
 	$configData['url'] = $url;
 	$configData['namespace'] = $namespace;
 	$configJSON = JSON::encode( $configData, JSON_PRETTY_PRINT );
