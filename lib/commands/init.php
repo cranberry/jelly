@@ -108,7 +108,7 @@ $command = new Command\Command( 'init', 'Reconfigure the template app', function
 	/*
 	 * Update config
 	 */
-	$configData['version'] = $url;
+	$configData['version'] = $appVersion;
 	$configData['url'] = $url;
 	$configData['namespace'] = $namespace;
 	$configJSON = JSON::encode( $configData, JSON_PRETTY_PRINT );
