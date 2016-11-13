@@ -85,7 +85,7 @@ $command = new Command\Command( 'init', 'Reconfigure the template app', function
 	 * Rename files
 	 */
 	/* Executable */
-	$fileExecutable = $binDirectory->child( $this->getApplicationName() );
+	$fileExecutable = $binDirectory->child( $this->app->name );
 	$fileExecutable->rename( $appName );
 
 	/* Source */
