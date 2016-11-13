@@ -124,6 +124,10 @@ $command = new Command\Command( 'init', 'Reconfigure the template app', function
 		$commandFile = new File\File( __FILE__ );
 		$commandFile->delete();
 	}
+
+	/* Stage all files */
+	$commandGitStageAll = 'git add .';
+	Shell::exec( $commandGitDeleteBranch );
 });
 
 return $command;
