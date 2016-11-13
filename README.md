@@ -100,7 +100,7 @@ $ cd whizzbang
 $ touch lib/commands/hello.php
 ```
 
-> **Note** — The filename doesn't isn't meaningful to Jelly, but it's helpful to name it after the command it contains.
+> **Note** — The filename isn't meaningful to Jelly, but it's helpful to name it after the command it contains.
 
 A barebones Cranberry command file looks like this:
 
