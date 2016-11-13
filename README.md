@@ -17,10 +17,11 @@ $ cd whizzbang
 $ bin/jelly init
 ```
 
-Choose a new application name:
+Choose a new application name and version:
 
 ```
 Application name: whizzbang
+Application version [0.1.0]:
 ```
 
 and a PHP namespace for any project-specific code (press Enter to accept the default):
