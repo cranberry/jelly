@@ -42,13 +42,13 @@ $command = new Command\Command( 'init', 'Reconfigure the template app', function
 	}
 
 	/* Namespace */
-	$namespaceDefault = ucfirst( strtolower( $appName ) );
-	$defaultString->setString( $namespaceDefault );
+	$appNamespaceDefault = ucfirst( strtolower( $appName ) );
+	$defaultString->setString( $appNamespaceDefault );
 
-	$namespace = Input::prompt( "PHP Namespace [{$defaultString}]:", false );
-	if( empty( $namespace ) )
+	$appNamespace = Input::prompt( "PHP Namespace [{$defaultString}]:", false );
+	if( empty( $appNamespace ) )
 	{
-		$namespace = $namespaceDefault;
+		$appNamespace = $appNamespaceDefault;
 	}
 
 	/* New branch */
@@ -62,7 +62,7 @@ $command = new Command\Command( 'init', 'Reconfigure the template app', function
 	}
 
 	/* URL */
-	$url = Input::prompt( "Project URL:", false );
+	$appUrl = Input::prompt( "Project URL:", false );
 
 	/*
 	 * Git
@@ -103,14 +103,15 @@ $command = new Command\Command( 'init', 'Reconfigure the template app', function
 		->childDir( 'src' )
 		->childDir( $configData['namespace'] );
 
-	$dirSrc->rename( $namespace );
+	$dirSrc->rename( $appNamespace );
 
 	/*
 	 * Update config
 	 */
 	$configData['version'] = $appVersion;
-	$configData['url'] = $url;
-	$configData['namespace'] = $namespace;
+	$configData['namespace'] = $appNamespace;
+	$configData['url'] = $appUrl;
+
 	$configJSON = JSON::encode( $configData, JSON_PRETTY_PRINT );
 	$configFile->putContents( $configJSON );
 
