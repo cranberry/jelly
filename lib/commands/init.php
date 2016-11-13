@@ -127,7 +127,7 @@ $command = new Command\Command( 'init', 'Reconfigure the template app', function
 
 	/* Stage all files */
 	$commandGitStageAll = 'git add .';
-	Shell::exec( $commandGitDeleteBranch );
+	Shell::exec( $commandGitStageAll );
 });
 
 return $command;
