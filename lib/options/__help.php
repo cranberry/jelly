@@ -4,12 +4,11 @@ use Cranberry\CLI\Command;
 
 $optionHelp = new Command\ApplicationOption( 'help', 'Display the help menu', function()
 {
-	$appOptions = $this->getApplicationExecutableOptions();
 	$appOptionsContent = '';
-	foreach( $appOptions as $appOption )
+	foreach( $this->app->options as $appOption )
 	{
-		$appOptionName = $appOption->getName();
-		$appOptionsContent .= " [--{$appOptionName}]";
+		$appOptionName = $appOption->name;
+		$appOptionsContent .= " [{$appOptionName}]";
 	}
 	$appOptionsContent = trim( $appOptionsContent );
 
