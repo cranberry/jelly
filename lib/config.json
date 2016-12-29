@@ -1,6 +1,6 @@
 {
     "namespace": "Jelly",
-	"url": "",
+	"url": "https://github.com/cranberry/jelly",
     "version": "0.1.0",
     "php-min": "5.4"
 }
