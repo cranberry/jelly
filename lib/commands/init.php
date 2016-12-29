@@ -133,6 +133,20 @@ $command = new Command\Command( 'init', 'Reconfigure the template app', function
 	$readmeFile->putContents( "# {$appName}" . PHP_EOL );
 
 	/*
+	 * Update CHANGELOG
+	 */
+	$changelogContents = <<<CHANGELOG
+# Change Log
+
+All notable changes to {$appName} will be documented in this file.
+
+## [Unreleased]
+
+CHANGELOG;
+	$changelogFile = $this->app->applicationDirectory->child( 'CHANGELOG.md' );
+	$changelogFile->putContents( $changelogContents );
+
+	/*
 	 * Stage all files
 	 */
 	$commandGitStageAll = 'git add .';
