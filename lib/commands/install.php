@@ -1,46 +1,150 @@
 <?php
 
+/*
+ * This file is part of Jelly
+ */
+namespace Jelly;
+
 use Cranberry\CLI\Command;
+use Cranberry\CLI\Input;
 use Cranberry\Core\File;
 
 /**
- * @name			install
- * @description		Symlink {app} to a convenient path
- * @usage			install <dir>
+ * @param	Cranberry\Core\File\Directory	$directory
+ * @return	void
  */
-$command = new Command\Command( 'install', 'Symlink {app} to a convenient path', function( $dir )
+function validateDirectory( File\Directory $directory )
 {
-	try
+	/* ...n'existe pas */
+	if( !$directory->exists() )
 	{
-		$destinationDirectory = new File\Directory( $dir );
-
-		if( !$destinationDirectory->exists() )
-		{
-			throw new \Exception( "Directory '{$dir}' does not exist" );
-		}
-	}
-	catch( \Exception $e )
-	{
-		throw new Command\CommandInvokedException( $e->getMessage(), 1 );
+		throw new \Exception( "'{$directory}' does not exist." );
 	}
 
-	$target = $destinationDirectory->child( $this->app->name );
-	$source = $this->app->applicationDirectory
+	/* ...has permissions problem */
+	if( !$directory->isReadable() )
+	{
+		throw new \Exception( "'{$directory}' is not readable." );
+	}
+	if( !$directory->isWritable() )
+	{
+		throw new \Exception( "'{$directory}' is not writeable." );
+	}
+
+	return true;
+}
+
+/**
+ * @name			install
+ * @description		Symlink app to a convenient path
+ * @usage			install
+ */
+$command = new Command\Command( 'install', 'Symlink {app} to a convenient path', function()
+{
+	/*
+	 * Executable
+	 */
+	$sourceFile = $this->app->applicationDirectory
 		->childDir( 'bin' )
 		->child( $this->app->name );
 
-	if( !$source->exists() )
+	$defaultPath = '/usr/local/bin';
+	$userPath = $this->getOptionValue( 'dir' );
+
+	/* Default destination */
+	if( is_null( $userPath ) )
 	{
-		throw new Command\CommandInvokedException( "Invalid source: '{$source}' not found", 1 );
+		$shouldPrompt = true;
+		$destinationDirectory = new File\Directory( $defaultPath );
+	}
+	/* User-specified destination */
+	else
+	{
+		$shouldPrompt = false;
+
+		try
+		{
+			$destinationDirectory = new File\Directory( $userPath );
+		}
+		catch( \Exception $e )
+		{
+			throw new Command\CommandInvokedException( 'Invalid location: ' . $e->getMessage(), 1 );
+		}
 	}
 
-	if( $target->exists() || $target->isSymlink() )
+	$hasPrompted = false;
+	$didValidate = false;
+
+	while( !$didValidate )
 	{
-		throw new Command\CommandInvokedException( "Invalid target: '{$target}' exists", 1 );
+		try
+		{
+			$didValidate = validateDirectory( $destinationDirectory );
+
+			/* Is destination directory on $PATH? */
+			$envPathDirs = explode( ':', getenv( 'PATH' ) );
+			if( !in_array( $destinationDirectory, $envPathDirs ) )
+			{
+				$shouldContinue = Input::prompt( "Target directory '{$destinationDirectory}' is not on \$PATH. Continue? (y/n)", true );
+				$shouldContinue = strtolower( $shouldContinue );
+
+				/* User chose not to continue */
+				if( $shouldContinue != 'y' && $shouldContinue != 'yes' )
+				{
+					exit( 1 );
+				}
+			}
+		}
+		catch( \Exception $e )
+		{
+			if( $shouldPrompt )
+			{
+				if( $hasPrompted )
+				{
+					echo 'Error: ' . $e->getMessage() . PHP_EOL;
+				}
+
+				$userPath = Input::prompt( "Symlink '{$this->app->name}' to directory:", true );
+
+				try
+				{
+					$destinationDirectory = new File\Directory( $userPath );
+				}
+				catch( \Exception $e )
+				{
+					throw new Command\CommandInvokedException( 'Invalid location: ' . $e->getMessage(), 1 );
+				}
+			}
+			else
+			{
+				throw new Command\CommandInvokedException( 'Invalid location: ' . $e->getMessage(), 1 );
+			}
+		}
 	}
 
-	symlink( $source, $target );
-	$this->output->line( "Linked to '{$target}'" );
+	/* Does target file already exist? */
+	$targetFile = $destinationDirectory->child( $this->app->name );
+
+	if( $targetFile->exists() )
+	{
+		if( $targetFile->isLink() )
+		{
+			if( $targetFile->getLinkTarget() == $sourceFile->getRealPath() )
+			{
+				echo "Already installed." . PHP_EOL;
+				return;
+			}
+		}
+
+		throw new Command\CommandInvokedException( "Target file '{$targetFile}' already exists." );
+	}
+
+	symlink( $sourceFile, $targetFile );
+
+	echo 'Installed.' . PHP_EOL;
 });
+
+$command->registerOption( 'dir' );
+$command->setUsage( 'install [--dir=<dir>]' );
 
 return $command;
